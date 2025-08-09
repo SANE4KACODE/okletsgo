@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bybit Analyzer Pro - Криптоанализ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --dark-bg: #0a0a0a;
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --accent: #00d4ff;
+            --shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            --glow: 0 0 30px rgba(0, 212, 255, 0.5);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(45deg, #0a0a0a, #1a1a2e, #16213e, #0f3460);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: float 6s infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            margin: 4rem 0;
+            animation: fadeInUp 1s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow), var(--glow);
+            border-color: var(--accent);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: var(--secondary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Symbol Selection */
+        .symbol-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+            animation: slideInLeft 1s ease;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .symbol-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .symbol-btn {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 15px;
+            padding: 1rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .symbol-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s ease, height 0.3s ease;
+        }
+
+        .symbol-btn:hover::before {
+            width: 200px;
+            height: 200px;
+        }
+
+        .symbol-btn:hover {
+            transform: scale(1.05);
+            box-shadow: var(--glow);
+        }
+
+        .symbol-btn.selected {
+            background: var(--success-gradient);
+            box-shadow: var(--glow);
+        }
+
+        /* Analysis Section */
+        .analysis-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+            animation: slideInRight 1s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .analysis-btn {
+            background: var(--success-gradient);
+            border: none;
+            border-radius: 15px;
+            padding: 1.5rem 3rem;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .analysis-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .analysis-btn:hover::before {
+            left: 100%;
+        }
+
+        .analysis-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow), var(--glow);
+        }
+
+        .analysis-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 0.5rem;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .progress-bar {
+            background: var(--success-gradient);
+            height: 8px;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* Results Section */
+        .results-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .result-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-left: 4px solid var(--accent);
+            transition: all 0.3s ease;
+        }
+
+        .result-item:hover {
+            transform: translateX(10px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .result-title {
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .result-value {
+            color: var(--text-primary);
+            font-size: 1.1rem;
+        }
+
+        /* Reports Section */
+        .reports-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+            animation: fadeInUp 1s ease 0.5s both;
+        }
+
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .report-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .report-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: var(--glow);
+        }
+
+        .report-date {
+            color: var(--accent);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .report-symbol {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .report-status {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .main-container {
+                padding: 1rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .symbol-grid {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            }
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow), var(--glow);
+        }
+
+        /* Notification Toast */
+        .toast {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1rem 1.5rem;
+            color: var(--text-primary);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-left: 4px solid #00ff88;
+        }
+
+        .toast.error {
+            border-left: 4px solid #ff4757;
+        }
+
+        .toast.info {
+            border-left: 4px solid var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation"></div>
+    
+    <!-- Floating Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                Bybit Analyzer Pro
+            </div>
+            <nav class="nav-links">
+                <a href="#home" class="nav-link">Главная</a>
+                <a href="#analysis" class="nav-link">Анализ</a>
+                <a href="#reports" class="nav-link">Отчеты</a>
+                <a href="#about" class="nav-link">О проекте</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Hero Section -->
+        <section class="hero" id="home">
+            <h1>Криптоанализ нового поколения</h1>
+            <p>Профессиональный анализ криптовалютных рынков с использованием ИИ, технических индикаторов и стратегий фандинга</p>
+        </section>
+
+        <!-- Feature Cards -->
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3>ИИ Анализ</h3>
+                <p>Продвинутые алгоритмы машинного обучения для прогнозирования цен</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-chart-candlestick"></i>
+                </div>
+                <h3>Технический анализ</h3>
+                <p>20+ технических индикаторов и паттерны свечного анализа</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <h3>Стратегия фандинга</h3>
+                <p>Уникальная стратегия торговли на основе фандинг-ставок</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3>Telegram Bot</h3>
+                <p>Удобный интерфейс через Telegram с уведомлениями</p>
+            </div>
+        </div>
+
+        <!-- Symbol Selection -->
+        <section class="symbol-section" id="analysis">
+            <h2><i class="fas fa-search"></i> Выберите символ для анализа</h2>
+            <div class="symbol-grid" id="symbolGrid">
+                <!-- Symbols will be loaded here -->
+            </div>
+        </section>
+
+        <!-- Analysis Section -->
+        <section class="analysis-section">
+            <h2><i class="fas fa-cogs"></i> Настройки анализа</h2>
+            <p>Выберите стратегию анализа и нажмите кнопку для запуска</p>
+            
+            <div style="margin: 1rem 0;">
+                <label for="strategySelect" style="color: var(--text-secondary); margin-right: 1rem;">Стратегия:</label>
+                <select id="strategySelect" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 0.5rem; margin-right: 1rem;">
+                    <option value="all">Все стратегии</option>
+                    <option value="funding">Фандинг стратегия</option>
+                    <option value="technical">Технический анализ</option>
+                    <option value="patterns">Паттерны свечей</option>
+                    <option value="lstm">ИИ прогноз</option>
+                </select>
+            </div>
+
+            <button class="analysis-btn" id="startAnalysis">
+                <i class="fas fa-play"></i> Начать анализ
+            </button>
+
+            <!-- Progress Bar -->
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-section" id="resultsSection">
+            <h2><i class="fas fa-chart-bar"></i> Результаты анализа</h2>
+            <div id="resultsContent">
+                <!-- Results will be displayed here -->
+            </div>
+        </section>
+
+        <!-- Reports Section -->
+        <section class="reports-section" id="reports">
+            <h2><i class="fas fa-file-alt"></i> Последние отчеты</h2>
+            <div class="reports-grid" id="reportsGrid">
+                <!-- Reports will be loaded here -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Floating Action Button -->
+    <div class="fab" id="fab" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Initialize particles
+        function initParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Show notification toast
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Scroll to top function
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Load popular symbols
+        async function loadSymbols() {
+            try {
+                const response = await fetch('/api/symbols');
+                const symbols = await response.json();
+                
+                const symbolGrid = document.getElementById('symbolGrid');
+                symbolGrid.innerHTML = '';
+                
+                symbols.forEach(symbol => {
+                    const btn = document.createElement('button');
+                    btn.className = 'symbol-btn';
+                    btn.textContent = symbol;
+                    btn.onclick = () => selectSymbol(symbol);
+                    symbolGrid.appendChild(btn);
+                });
+            } catch (error) {
+                console.error('Error loading symbols:', error);
+                showToast('Ошибка загрузки символов', 'error');
+            }
+        }
+
+        // Select symbol
+        function selectSymbol(symbol) {
+            // Remove previous selection
+            document.querySelectorAll('.symbol-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Add selection to clicked button
+            event.target.classList.add('selected');
+            
+            showToast(`Выбран символ: ${symbol}`, 'success');
+        }
+
+        // Start analysis
+        async function startAnalysis() {
+            const selectedSymbol = document.querySelector('.symbol-btn.selected');
+            if (!selectedSymbol) {
+                showToast('Пожалуйста, выберите символ для анализа', 'warning');
+                return;
+            }
+
+            const symbol = selectedSymbol.textContent;
+            const strategy = document.getElementById('strategySelect').value;
+            
+            const analysisBtn = document.getElementById('startAnalysis');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            
+            // Disable button and show progress
+            analysisBtn.disabled = true;
+            analysisBtn.innerHTML = '<div class="loading"></div> Анализируем...';
+            progressContainer.style.display = 'block';
+            
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                progressBar.style.width = progress + '%';
+            }, 200);
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        symbol: symbol,
+                        strategy: strategy
+                    })
+                });
+
+                const result = await response.json();
+                
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+                
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    analysisBtn.disabled = false;
+                    analysisBtn.innerHTML = '<i class="fas fa-play"></i> Начать анализ';
+                    
+                    if (result.success) {
+                        displayResults(result.data);
+                        showToast('Анализ завершен успешно!', 'success');
+                    } else {
+                        showToast('Ошибка при анализе: ' + result.error, 'error');
+                    }
+                }, 500);
+                
+            } catch (error) {
+                clearInterval(progressInterval);
+                progressContainer.style.display = 'none';
+                analysisBtn.disabled = false;
+                analysisBtn.innerHTML = '<i class="fas fa-play"></i> Начать анализ';
+                
+                console.error('Analysis error:', error);
+                showToast('Ошибка при выполнении анализа', 'error');
+            }
+        }
+
+        // Display analysis results
+        function displayResults(data) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            resultsContent.innerHTML = '';
+            
+            // Add result items
+            Object.entries(data).forEach(([key, value]) => {
+                if (value && typeof value === 'object') {
+                    Object.entries(value).forEach(([subKey, subValue]) => {
+                        if (subValue !== null && subValue !== undefined) {
+                            const item = document.createElement('div');
+                            item.className = 'result-item';
+                            item.innerHTML = `
+                                <div class="result-title">${key} - ${subKey}</div>
+                                <div class="result-value">${JSON.stringify(subValue)}</div>
+                            `;
+                            resultsContent.appendChild(item);
+                        }
+                    });
+                } else if (value !== null && value !== undefined) {
+                    const item = document.createElement('div');
+                    item.className = 'result-item';
+                    item.innerHTML = `
+                        <div class="result-title">${key}</div>
+                        <div class="result-value">${JSON.stringify(value)}</div>
+                    `;
+                    resultsContent.appendChild(item);
+                }
+            });
+            
+            resultsSection.style.display = 'block';
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Load recent reports
+        async function loadReports() {
+            try {
+                const response = await fetch('/api/reports');
+                const reports = await response.json();
+                
+                const reportsGrid = document.getElementById('reportsGrid');
+                reportsGrid.innerHTML = '';
+                
+                if (reports.length === 0) {
+                    reportsGrid.innerHTML = '<p style="color: var(--text-secondary); text-align: center; grid-column: 1 / -1;">Отчеты пока не созданы</p>';
+                    return;
+                }
+                
+                reports.forEach(report => {
+                    const card = document.createElement('div');
+                    card.className = 'report-card';
+                    card.innerHTML = `
+                        <div class="report-date">${new Date(report.timestamp).toLocaleString()}</div>
+                        <div class="report-symbol">${report.symbol}</div>
+                        <div class="report-status">${report.status}</div>
+                    `;
+                    card.onclick = () => window.open(`/reports/${report.filename}`, '_blank');
+                    reportsGrid.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error loading reports:', error);
+                showToast('Ошибка загрузки отчетов', 'error');
+            }
+        }
+
+        // Event listeners
+        document.getElementById('startAnalysis').addEventListener('click', startAnalysis);
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initParticles();
+            loadSymbols();
+            loadReports();
+            
+            // Smooth scrolling for navigation links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+        });
+
+        // Show/hide FAB based on scroll
+        window.addEventListener('scroll', () => {
+            const fab = document.getElementById('fab');
+            if (window.scrollY > 300) {
+                fab.style.opacity = '1';
+                fab.style.pointerEvents = 'auto';
+            } else {
+                fab.style.opacity = '0';
+                fab.style.pointerEvents = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
